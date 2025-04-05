@@ -1,0 +1,38 @@
+# Development files not needed in the published package
+.git/
+.github/
+.vscode/
+.editorconfig
+.gitignore
+
+# Test files and directories
+test/
+tests/
+*.test.js
+*.spec.js
+TestResults/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Build artifacts and source maps
+*.map
+
+# Configuration files
+*.config.js
+.npmrc
+tsconfig.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.*
+
+# OS-specific files
+.DS_Store
+Thumbs.db

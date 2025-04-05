@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerShell Trainer - Changelog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .version-tag {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .feature-tag {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .fix-tag {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.25rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="container mx-auto max-w-3xl bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">PowerShell Trainer - Changelog</h1>
+
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700">
+                Version 0.1 <span class="text-sm font-normal text-gray-500">(Current)</span>
+                <span class="version-tag inline-block text-xs font-medium ml-2 px-2 py-0.5 rounded">Latest</span>
+            </h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li>
+                    <span class="fix-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Fix</span>
+                    Adjusted header layout to prevent Settings/Theme buttons from being hidden or unresponsive.
+                </li>
+                <li>
+                    <span class="fix-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Fix</span>
+                    Reviewed and potentially fixed issues with saving/loading/exporting favorites to localStorage. Added
+                    more debug logs (commented out) for tracing.
+                </li>
+                <li>
+                    <span class="fix-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Fix</span>
+                    Ensured the quick favorite star icon in the command list is visible and clickable. Added padding for
+                    better interaction.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added this Changelog page (`changelog.html`).
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added a link (History icon) to the Changelog in the main application header.
+                </li>
+                <li>
+                    <span class="fix-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Fix</span>
+                    Improved robustness of script initialization and added optional chaining for DOM element access.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700">
+                Version 0.1 <span class="text-sm font-normal text-gray-500">(Modal Fix Attempt)</span>
+            </h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li>
+                    <span class="fix-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Fix</span>
+                    Attempted to fix settings modal opening by switching visibility control from opacity/visibility to
+                    display none/flex.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added commented-out console logs for debugging modal opening.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700">
+                Version 0.1 <span class="text-sm font-normal text-gray-500">(Settings Update)</span>
+            </h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added Settings modal with controls for Font Family, Size, and Weight.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added Behavior toggles: Auto-clear input, Show tooltips, Enable syntax highlighting.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Implemented Data Management: Export/Import Favorites (JSON), Export/Import Commands (JSON).
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added "Reset All Settings" button.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Added visual separators (bottom border) to command list items.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-700">
+                Version 0.1 <span class="text-sm font-normal text-gray-500">(Initial Release)</span>
+            </h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Initial creation based on detailed prompt.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Two-column layout (Commands | Terminal).
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Light/Dark theme toggle with localStorage persistence.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Static dark terminal output area.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Font family/size selection (Mono/Sans, XS-LG) with localStorage persistence.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Module filtering for commands.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Command list with tooltips and click-to-copy functionality.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Favorites system (add custom, toggle predefined) with localStorage persistence.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Command execution simulation (including `cls`/`clear-host`).
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Basic syntax highlighting for output.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Command regeneration feature.
+                </li>
+                <li>
+                    <span class="feature-tag inline-block text-xs font-medium mr-1 px-1.5 py-0.5 rounded">Feature</span>
+                    Styled using Tailwind CSS and Lucide Icons via CDN.
+                </li>
+            </ul>
+        </section>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerShell Trainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.css">
+    <style>
+        /* Base Lucide icon styling (if font loads) */
+        [class^="lucide-"],
+        [class*=" lucide-"] {
+            font-family: 'Lucide';
+            font-style: normal;
+            font-weight: normal;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Fallback emoji styling */
+        .emoji-icon {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 1.1em;
+            /* Adjust size as needed */
+        }
+
+        /* Output area styling */
+        #output {
+            background-color: #012456;
+            color: #e5e7eb;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            line-height: 1.5;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 250px;
+            flex-grow: 1;
+        }
+
+        /* Syntax Highlighting Styles */
+        .syntax-highlighting-enabled .ps-prompt {
+            color: #a0aec0;
+        }
+
+        .syntax-highlighting-enabled .ps-cmdlet {
+            color: #63b3ed;
+            font-weight: bold;
+        }
+
+        .syntax-highlighting-enabled .ps-parameter {
+            color: #9f7aea;
+        }
+
+        .syntax-highlighting-enabled .ps-string {
+            color: #f6ad55;
+        }
+
+        .syntax-highlighting-enabled .ps-variable {
+            color: #48bb78;
+        }
+
+        .syntax-highlighting-enabled .ps-comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .syntax-highlighting-enabled .ps-error {
+            color: #f56565;
+            font-weight: bold;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #374151;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 50;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: pre-wrap;
+            font-size: 0.75rem;
+            line-height: 1.25;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #374151 transparent transparent transparent;
+        }
+
+        .show-tooltips .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Custom scrollbar */
+        #commandList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #commandList::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #commandList::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        #commandList::-webkit-scrollbar-thumb:hover {
+            background-color: #a0aec0;
+        }
+
+        .dark #commandList::-webkit-scrollbar-thumb {
+            background-color: #4a5568;
+        }
+
+        .dark #commandList::-webkit-scrollbar-thumb:hover {
+            background-color: #718096;
+        }
+
+        #commandList {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .dark #commandList {
+            scrollbar-color: #4a5568 transparent;
+        }
+
+        /* Settings Modal Styles */
+        #settingsModal {
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        #settingsModal:not(.hidden) {
+            display: flex;
+        }
+
+        /* Command list item separation */
+        #commandList>div {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dark #commandList>div {
+            border-bottom-color: #374151;
+        }
+
+        #commandList>div:last-child {
+            border-bottom: none;
+        }
+
+        #settingsModal button {
+            min-height: 36px;
+        }
+
+        /* Favorite toggle button */
+        .favorite-toggle {
+            display: inline-block !important;
+            padding: 0.25rem;
+            border-radius: 0.375rem;
+            vertical-align: middle;
+            line-height: 1;
+            /* Ensure proper alignment */
+        }
+
+        .favorite-toggle .emoji-icon {
+            font-size: 1rem;
+            /* Adjust emoji size */
+        }
+
+        /* Export Text Area */
+        .export-textarea {
+            width: 100%;
+            height: 100px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            background-color: #f9f9f9;
+            color: #333;
+            resize: vertical;
+        }
+
+        .dark .export-textarea {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            border-color: #4b5563;
+        }
+
+        /* Changelog styling within modal */
+        #changelogContentArea h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .dark #changelogContentArea h3 {
+            border-bottom-color: #4b5563;
+        }
+
+        #changelogContentArea ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #changelogContentArea li {
+            margin-bottom: 0.25rem;
+        }
+
+        .changelog-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.25rem;
+            line-height: 1.2;
+            vertical-align: middle;
+        }
+
+        .tag-fix {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Red */
+        .tag-feature {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Green */
+        .tag-ui {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        /* Indigo */
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'selector' }
+    </script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-300">
+    <div class="container mx-auto p-4 max-w-7xl relative">
+        <header class="flex justify-between items-center mb-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <h1 class="text-xl font-bold mr-4 shrink-0">PowerShell Trainer [v1.5]</h1>
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <button id="showLogButton" title="View Changelog"
+                    class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <span class="emoji-icon">📜</span> <span class="hidden sm:inline">Log</span>
+                </button>
+                <button id="settingsButton" title="Open Settings"
+                    class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                    <span class="emoji-icon text-lg">⚙️</span> Settings
+                </button>
+                <button id="themeToggle" title="Toggle Theme"
+                    class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                    <span class="emoji-icon text-lg sun-icon">☀️</span>
+                    <span class="emoji-icon text-lg moon-icon hidden">🌙</span>
+
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-4">
+            <aside class="w-full md:w-1/3 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="font-semibold mb-2">Command Titles</h2>
+                    <select id="moduleFilter"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="all">All Modules</option>
+                        <option value="favorites">⭐ Favorites</option>
+                    </select>
+                </div>
+                <div id="commandList" class="flex-grow overflow-y-auto p-2">
+                    <p id="loadingMessage" class="p-4 text-center text-gray-500">Loading commands...</p>
+                </div>
+            </aside>
+
+            <main class="w-full md:w-2/3 flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div id="output" class="flex-grow p-4 text-sm leading-normal"></div>
+                <div id="input-area"
+                    class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 flex items-center flex-wrap gap-2">
+                    <span class="font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">PS C:\&gt;</span>
+                    <input type="text" id="input"
+                        class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-w-[100px]"
+                        placeholder="Enter PowerShell command...">
+                    <button id="runButton" title="Run Command (Enter)"
+                        class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 flex items-center gap-1">
+                        <span class="emoji-icon">▶️</span> <span class="hidden sm:inline">Run</span>
+                    </button>
+                    <button id="addFavoriteButton" title="Add to Favorites"
+                        class="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 dark:focus:ring-offset-gray-800 flex items-center gap-1">
+                        <span class="emoji-icon">⭐</span> <span class="hidden sm:inline">Favorite</span>
+                    </button>
+                    <button id="regenerateButton" title="Regenerate Command"
+                        class="p-2 bg-green-600 hover:bg-green-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800 flex items-center gap-1">
+                        <span class="emoji-icon">🔄</span> <span class="hidden sm:inline">Regen</span>
+                    </button>
+                    <button id="clearButton" title="Clear Terminal"
+                        class="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 flex items-center gap-1">
+                        <span class="emoji-icon">🗑️</span> <span class="hidden sm:inline">Clear</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <div id="settingsModal"
+            class="fixed inset-0 bg-black bg-opacity-60 items-center justify-center p-4 z-40 hidden">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4 border-b pb-2 dark:border-gray-600">
+                    <h2 class="text-xl font-semibold">Settings & Changelog</h2>
+                    <button id="closeSettingsButton" title="Close Settings"
+                        class="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <span class="emoji-icon text-lg">❌</span>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <fieldset class="border p-4 rounded-md dark:border-gray-600">
+                        <legend class="text-lg font-medium px-2">Appearance</legend>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                            <div>
+                                <label for="fontFamilySelect" class="block text-sm font-medium mb-1">Font Family</label>
+                                <select id="fontFamilySelect"
+                                    class="w-full p-1.5 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="font-mono">System Mono</option>
+                                    <option value="font-sans">System Sans</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="fontSizeSelect" class="block text-sm font-medium mb-1">Font Size</label>
+                                <select id="fontSizeSelect"
+                                    class="w-full p-1.5 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="text-xs">XS</option>
+                                    <option value="text-sm">SM</option>
+                                    <option value="text-base">Base</option>
+                                    <option value="text-lg">LG</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="fontWeightSelect" class="block text-sm font-medium mb-1">Font Weight</label>
+                                <select id="fontWeightSelect"
+                                    class="w-full p-1.5 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="font-normal">Normal</option>
+                                    <option value="font-bold">Bold</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="border p-4 rounded-md dark:border-gray-600">
+                        <legend class="text-lg font-medium px-2">Behavior</legend>
+                        <div class="space-y-2 mt-2">
+                            <div class="flex items-center">
+                                <input id="autoClearInputCheck" type="checkbox"
+                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label for="autoClearInputCheck" class="ml-2 block text-sm select-none">Auto-clear input
+                                    after Run</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="showTooltipsCheck" type="checkbox"
+                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label for="showTooltipsCheck" class="ml-2 block text-sm select-none">Show tooltips on
+                                    command list</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="enableSyntaxHighlightCheck" type="checkbox"
+                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label for="enableSyntaxHighlightCheck" class="ml-2 block text-sm select-none">Enable
+                                    syntax highlighting in output</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="border p-4 rounded-md dark:border-gray-600">
+                        <legend class="text-lg font-medium px-2">Data Management</legend>
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <button id="showExportFavoritesButton"
+                                class="p-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-1">
+                                <span class="emoji-icon">📋</span> Export Favs
+                            </button>
+                            <button id="importFavoritesButton"
+                                class="p-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-1">
+                                <span class="emoji-icon">📤</span> Import Favs
+                            </button>
+                            <button id="showExportCommandsButton"
+                                class="p-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-1">
+                                <span class="emoji-icon">📋</span> Export Cmds
+                            </button>
+                            <button id="importCommandsButton"
+                                class="p-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-1">
+                                <span class="emoji-icon">📤</span> Import Cmds
+                            </button>
+                        </div>
+                        <div id="exportFavoritesArea" class="hidden mt-3">
+                            <label for="favoritesJsonOutput" class="block text-sm font-medium mb-1">Favorites JSON (Copy
+                                this text):</label>
+                            <textarea id="favoritesJsonOutput" readonly class="export-textarea"></textarea>
+                        </div>
+                        <div id="exportCommandsArea" class="hidden mt-3">
+                            <label for="commandsJsonOutput" class="block text-sm font-medium mb-1">Commands JSON (Copy
+                                this text):</label>
+                            <textarea id="commandsJsonOutput" readonly class="export-textarea"></textarea>
+                        </div>
+                        <input type="file" id="importFavoritesFile" accept=".json" class="hidden">
+                        <input type="file" id="importCommandsFile" accept=".json" class="hidden">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Note: Importing commands will replace
+                            the currently loaded command set for this session.</p>
+                    </fieldset>
+                    <fieldset class="border p-4 rounded-md dark:border-gray-600">
+                        <legend class="text-lg font-medium px-2">Reset</legend>
+                        <div class="mt-2">
+                            <button id="resetSettingsButton"
+                                class="w-full p-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-1">
+                                <span class="emoji-icon">♻️</span> Reset All Settings & Commands
+                            </button>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">This resets theme, fonts,
+                                favorites, options, and restores the default command set (either from fallback or last
+                                successful fetch).</p>
+                        </div>
+                    </fieldset>
+                    <fieldset class="border p-4 rounded-md dark:border-gray-600">
+                        <legend class="text-lg font-medium px-2">Changelog</legend>
+                        <div id="changelogContentArea" class="mt-2 text-sm text-gray-700 dark:text-gray-300 space-y-4">
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Command Data (Default Fallback Set) ---
+        // This is used if commands.json cannot be fetched
+        const defaultCommandExamples = {
+            // Defender Module
+            'get-mpcomputerstatus': { module: 'Defender', title: 'Check Defender Status', output: `AntivirusEnabled                 : True\nAntispywareEnabled               : True\nBehaviorMonitorEnabled           : True\nIoavProtectionEnabled            : True\nNISEnabled                       : True\nOnAccessProtectionEnabled        : True\nRealTimeProtectionEnabled        : True\nComputerState                    : 0\nLastFullScanTime                 : 2025-03-15T08:00:00.000Z\nLastQuickScanTime                : 2025-04-04T10:30:00.000Z` },
+            'start-mpscan -scantype quickscan': { module: 'Defender', title: 'Quick Scan', output: `Scan starting...\nScan finished.\nNo threats found.` },
+            'update-mpsignature': { module: 'Defender', title: 'Update Signatures', output: `Signature update started...\nSignature update finished.\nCurrent Version: 1.415.120.0` },
+            // Utility Module
+            'get-date': { module: 'Utility', title: 'Get Current Date/Time', output: `Friday, April 4, 2025 11:50:00 PM` },
+            'clear-host': { module: 'Utility', title: 'Clear Console Screen', output: '' },
+            'cls': { module: 'Utility', title: 'Clear Console Screen (Alias)', output: '' },
+            // Add a few more defaults if desired...
+        };
+
+        // --- Global variable for loaded commands ---
+        let commandExamples = {}; // Will be populated by fetch or fallback
+
+        // --- State ---
+        const defaultSettings = { /* ... Same default settings ... */
+            favorites: [], theme: 'light', fontFamily: 'font-mono', fontSize: 'text-sm',
+            fontWeight: 'font-normal', autoClearInput: false, showTooltips: true, enableSyntaxHighlight: true,
+        };
+        let favorites = [...defaultSettings.favorites];
+        let currentTheme = defaultSettings.theme;
+        let currentFontFamily = defaultSettings.fontFamily;
+        let currentFontSize = defaultSettings.fontSize;
+        let currentFontWeight = defaultSettings.fontWeight;
+        let autoClearInput = defaultSettings.autoClearInput;
+        let showTooltips = defaultSettings.showTooltips;
+        let enableSyntaxHighlight = defaultSettings.enableSyntaxHighlight;
+
+        // --- DOM Element References ---
+        // (Ensure all elements referenced below are defined here)
+        const body = document.body;
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsButton = document.getElementById('closeSettingsButton');
+        const themeToggleButton = document.getElementById('themeToggle');
+        const sunIcon = themeToggleButton?.querySelector('.sun-icon');
+        const moonIcon = themeToggleButton?.querySelector('.moon-icon');
+        const fontFamilySelect = document.getElementById('fontFamilySelect');
+        const fontSizeSelect = document.getElementById('fontSizeSelect');
+        const fontWeightSelect = document.getElementById('fontWeightSelect');
+        const autoClearInputCheck = document.getElementById('autoClearInputCheck');
+        const showTooltipsCheck = document.getElementById('showTooltipsCheck');
+        const enableSyntaxHighlightCheck = document.getElementById('enableSyntaxHighlightCheck');
+        const moduleFilter = document.getElementById('moduleFilter');
+        const commandListDiv = document.getElementById('commandList');
+        const outputDiv = document.getElementById('output');
+        const inputField = document.getElementById('input');
+        const runButton = document.getElementById('runButton');
+        const clearButton = document.getElementById('clearButton');
+        const addFavoriteButton = document.getElementById('addFavoriteButton');
+        const regenerateButton = document.getElementById('regenerateButton');
+        const showLogButton = document.getElementById('showLogButton');
+        const showExportFavoritesButton = document.getElementById('showExportFavoritesButton');
+        const importFavoritesButton = document.getElementById('importFavoritesButton');
+        const importFavoritesFile = document.getElementById('importFavoritesFile');
+        const showExportCommandsButton = document.getElementById('showExportCommandsButton');
+        const importCommandsButton = document.getElementById('importCommandsButton');
+        const importCommandsFile = document.getElementById('importCommandsFile');
+        const resetSettingsButton = document.getElementById('resetSettingsButton');
+        const exportFavoritesArea = document.getElementById('exportFavoritesArea');
+        const favoritesJsonOutput = document.getElementById('favoritesJsonOutput');
+        const exportCommandsArea = document.getElementById('exportCommandsArea');
+        const commandsJsonOutput = document.getElementById('commandsJsonOutput');
+        const changelogContentArea = document.getElementById('changelogContentArea');
+        const loadingMessage = document.getElementById('loadingMessage'); // Get loading message element
+        let initialOutputContent = '';
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => { // Make async
+            try {
+                // console.log("DEBUG: DOM fully loaded");
+                if (!outputDiv || !inputField || !commandListDiv || !settingsModal || !settingsButton || !themeToggleButton || !moduleFilter || !changelogContentArea || !showLogButton || !loadingMessage) {
+                    console.error("DEBUG: Essential DOM elements not found. Aborting.");
+                    alert("Error initializing: Critical elements missing.");
+                    return;
+                }
+                initialOutputContent = `<span class="ps-comment"># Welcome to the PowerShell Trainer!</span><br>`
+                    + `<span class="ps-comment"># Click Log (<span class="emoji-icon">📜</span>) or Settings (<span class="emoji-icon">⚙️</span>) icons.</span><br>`
+                    + `<span class="ps-comment"># Select or type commands. Use stars (<span class="emoji-icon">⭐</span>/<span class="emoji-icon">☆</span>) to favorite.</span><br><br>`;
+                outputDiv.innerHTML = initialOutputContent;
+                populateChangelog(); // Populate changelog content early
+
+                // Load settings BEFORE fetching data, as theme might be needed
+                loadSettings();
+                applyCoreSettings(); // Apply theme and core body classes
+
+                // Fetch command data
+                await loadCommandData(); // Wait for data to load or fallback
+
+                // Remove loading message AFTER data is ready
+                loadingMessage.remove();
+
+                // Populate UI elements that depend on command data and settings
+                applyAllSettings(); // Apply remaining settings
+                populateModuleFilter(); // Needs commandExamples
+                populateCommandList();  // Needs commandExamples and favorites
+
+                if (inputField) inputField.focus();
+                attachEventListeners(); // Attach ALL listeners
+                // console.log("DEBUG: Initialization complete.");
+            } catch (error) {
+                console.error("DEBUG: Error during initialization:", error);
+                if (loadingMessage) loadingMessage.textContent = "Error initializing application."; // Update loading message on error
+                alert(`An error occurred during initialization: ${error.message}\n\nPlease check the console for details and try reloading.`);
+            }
+        });
+
+        // --- Fetch Command Data ---
+        async function loadCommandData() {
+            const jsonPath = './commands.json'; // Assume commands.json is in the same directory
+            // console.log(`DEBUG: Attempting to fetch command data from ${jsonPath}`);
+            try {
+                const response = await fetch(jsonPath, { cache: "no-store" }); // Prevent caching issues
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status} while fetching ${jsonPath}`);
+                }
+                const data = await response.json();
+                // console.log("DEBUG: Successfully fetched and parsed commands.json");
+
+                // Basic validation of fetched data structure
+                if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+                    throw new Error('Fetched commands.json is not a valid JSON object.');
+                }
+                // Optional: Deeper validation - check if keys have module/title/output
+                const firstKey = Object.keys(data)[0];
+                if (firstKey && (!data[firstKey] || !data[firstKey].module || !data[firstKey].title || typeof data[firstKey].output === 'undefined')) {
+                    console.warn("DEBUG: Fetched data structure might be incorrect. First entry:", data[firstKey]);
+                    // Decide if this should be a hard error or just a warning
+                    // throw new Error('Fetched commands.json has incorrect entry structure.');
+                }
+
+                commandExamples = data; // Assign fetched data
+            } catch (error) {
+                console.error(`DEBUG: Failed to fetch or parse ${jsonPath}:`, error);
+                alert(`Warning: Could not load commands from ${jsonPath}.\nFalling back to default command set.\nError: ${error.message}`);
+                commandExamples = JSON.parse(JSON.stringify(defaultCommandExamples)); // Use fallback
+            }
+            // console.log("DEBUG: commandExamples populated:", commandExamples);
+        }
+
+
+        // --- Local Storage & Settings ---
+        function saveSettings() { /* ... Same as before, includes logging comments ... */ try { const settings = { favorites, theme: currentTheme, fontFamily: currentFontFamily, fontSize: currentFontSize, fontWeight: currentFontWeight, autoClearInput, showTooltips, enableSyntaxHighlight }; localStorage.setItem('psTrainerSettings', JSON.stringify(settings)); } catch (error) { console.error("DEBUG: Error saving settings:", error); alert("Warning: Could not save settings."); } }
+        function loadSettings() { /* ... Same as before, includes logging comments ... */ try { const rawSettings = localStorage.getItem('psTrainerSettings'); const savedSettings = JSON.parse(rawSettings || '{}'); favorites = Array.isArray(savedSettings.favorites) ? savedSettings.favorites.map(fav => String(fav).toLowerCase()) : [...defaultSettings.favorites]; currentTheme = savedSettings.theme === 'dark' ? 'dark' : defaultSettings.theme; currentFontFamily = ['font-mono', 'font-sans'].includes(savedSettings.fontFamily) ? savedSettings.fontFamily : defaultSettings.fontFamily; currentFontSize = ['text-xs', 'text-sm', 'text-base', 'text-lg'].includes(savedSettings.fontSize) ? savedSettings.fontSize : defaultSettings.fontSize; currentFontWeight = ['font-normal', 'font-bold'].includes(savedSettings.fontWeight) ? savedSettings.fontWeight : defaultSettings.fontWeight; autoClearInput = typeof savedSettings.autoClearInput === 'boolean' ? savedSettings.autoClearInput : defaultSettings.autoClearInput; showTooltips = typeof savedSettings.showTooltips === 'boolean' ? savedSettings.showTooltips : defaultSettings.showTooltips; enableSyntaxHighlight = typeof savedSettings.enableSyntaxHighlight === 'boolean' ? savedSettings.enableSyntaxHighlight : defaultSettings.enableSyntaxHighlight; } catch (error) { console.error("DEBUG: Error loading settings:", error); resetStateToDefaults(); } }
+        function resetStateToDefaults() { /* ... Same as before ... */ favorites = [...defaultSettings.favorites]; currentTheme = defaultSettings.theme; currentFontFamily = defaultSettings.fontFamily; currentFontSize = defaultSettings.fontSize; currentFontWeight = defaultSettings.fontWeight; autoClearInput = defaultSettings.autoClearInput; showTooltips = defaultSettings.showTooltips; enableSyntaxHighlight = defaultSettings.enableSyntaxHighlight; }
+        function applyCoreSettings() { /* Applies theme and base body classes */ applyTheme(); body.classList.add('text-sm', 'font-mono', 'font-normal', 'show-tooltips', 'syntax-highlighting-enabled'); if (sunIcon && moonIcon) { sunIcon.classList.toggle('hidden', currentTheme === 'dark'); moonIcon.classList.toggle('hidden', currentTheme === 'light'); } }
+        function applyAllSettings() { /* Applies ALL settings, including those from selects/checkboxes */ applyCoreSettings(); applyFontFamily(); applyFontSize(); applyFontWeight(); applyTooltipPreference(); applySyntaxHighlightPreference(); if (fontFamilySelect) fontFamilySelect.value = currentFontFamily; if (fontSizeSelect) fontSizeSelect.value = currentFontSize; if (fontWeightSelect) fontWeightSelect.value = currentFontWeight; if (autoClearInputCheck) autoClearInputCheck.checked = autoClearInput; if (showTooltipsCheck) showTooltipsCheck.checked = showTooltips; if (enableSyntaxHighlightCheck) enableSyntaxHighlightCheck.checked = enableSyntaxHighlight; }
+        function resetAllSettings() {
+            if (!confirm("Are you sure you want to reset all settings?\n\nThis will:\n- Clear your favorites.\n- Reset appearance/behavior options.\n- Restore the default command set (from fallback).")) { return; }
+            resetStateToDefaults();
+            // Reset commands to the hardcoded default, ignoring fetched data
+            commandExamples = JSON.parse(JSON.stringify(defaultCommandExamples));
+            localStorage.removeItem('psTrainerSettings');
+            applyAllSettings(); // Apply default visual settings
+            populateModuleFilter(); // Repopulate based on default commands
+            populateCommandList(); // Repopulate based on default commands
+            alert("Settings and commands have been reset to default.");
+            closeSettingsModal();
+        }
+
+        // --- Settings Modal Logic ---
+        function openSettingsModal() { /* ... Same as before ... */ if (settingsModal) { if (exportFavoritesArea) exportFavoritesArea.classList.add('hidden'); if (exportCommandsArea) exportCommandsArea.classList.add('hidden'); settingsModal.classList.remove('hidden'); } else { console.error("Settings modal element not found."); } }
+        function closeSettingsModal() { /* ... Same as before ... */ if (settingsModal) { settingsModal.classList.add('hidden'); } }
+
+        // --- Theme Switching ---
+        function applyTheme() { /* ... Same as before ... */ document.documentElement.classList.toggle('dark', currentTheme === 'dark'); }
+        function handleThemeToggle() { /* ... Same as before ... */ currentTheme = currentTheme === 'light' ? 'dark' : 'light'; applyAllSettings(); saveSettings(); }
+
+        // --- Font/Size/Weight Application ---
+        function applyFontFamily() { /* ... Same as before ... */ body.classList.remove('font-mono', 'font-sans'); body.classList.add(currentFontFamily); const ff = currentFontFamily === 'font-mono' ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' : 'ui-sans-serif, system-ui, sans-serif'; if (outputDiv) outputDiv.style.fontFamily = ff; if (inputField) inputField.style.fontFamily = ff; }
+        function applyFontSize() { /* ... Same as before ... */ body.classList.remove('text-xs', 'text-sm', 'text-base', 'text-lg'); body.classList.add(currentFontSize); }
+        function applyFontWeight() { /* ... Same as before ... */ body.classList.remove('font-normal', 'font-bold'); body.classList.add(currentFontWeight); }
+
+        // --- Behavior Toggles Application ---
+        function applyTooltipPreference() { /* ... Same as before ... */ body.classList.toggle('show-tooltips', showTooltips); }
+        function applySyntaxHighlightPreference() { /* ... Same as before ... */ body.classList.toggle('syntax-highlighting-enabled', enableSyntaxHighlight); }
+
+        // --- Command List Population & Filtering ---
+        function populateModuleFilter() { /* ... Same as before ... */ if (!moduleFilter) return; while (moduleFilter.options.length > 2) { moduleFilter.remove(2); } const modules = new Set(); Object.values(commandExamples || {}).forEach(cmd => { if (cmd && cmd.module) { modules.add(cmd.module); } }); const sortedModules = Array.from(modules).sort(); sortedModules.forEach(moduleName => { const option = document.createElement('option'); option.value = moduleName; option.textContent = moduleName; moduleFilter.appendChild(option); }); }
+        function populateCommandList() { /* ... Same as before, includes emoji star logic ... */
+            if (!commandListDiv || !moduleFilter) return; commandListDiv.innerHTML = ''; const selectedModule = moduleFilter.value; const fragment = document.createDocumentFragment(); const displayItems = {};
+            Object.entries(commandExamples || {}).forEach(([key, cmd]) => { if (cmd && typeof key === 'string' && cmd.module && cmd.title && typeof cmd.output === 'string') { if (selectedModule === 'all' || selectedModule === cmd.module) { displayItems[key.toLowerCase()] = { ...cmd, key: key, type: 'predefined' }; } } else { console.warn(`Skipping invalid command entry: ${key}`, cmd); } });
+            if (selectedModule === 'all' || selectedModule === 'favorites') { (favorites || []).forEach(favKey => { const lowerFavKey = favKey.toLowerCase(); if (!displayItems[lowerFavKey]) { displayItems[lowerFavKey] = { key: favKey, type: 'custom' }; } }); }
+            const sortedKeys = Object.keys(displayItems).sort((a, b) => { const itemA = displayItems[a]; const itemB = displayItems[b]; const textA = itemA.type === 'predefined' ? `${itemA.title} [${itemA.module}]` : `${itemA.key} (Custom)`; const textB = itemB.type === 'predefined' ? `${itemB.title} [${itemB.module}]` : `${itemB.key} (Custom)`; return textA.localeCompare(textB); });
+            sortedKeys.forEach(lowerKey => {
+                const item = displayItems[lowerKey]; const commandKey = item.key; const isFavorite = favorites.includes(commandKey.toLowerCase());
+                const div = document.createElement('div'); div.className = 'flex justify-between items-center p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700 group cursor-pointer';
+                const textSpan = document.createElement('span'); textSpan.className = 'command-text truncate tooltip flex-grow mr-2'; textSpan.dataset.commandKey = commandKey;
+                const tooltipSpan = document.createElement('span'); tooltipSpan.className = 'tooltiptext';
+                if (item.type === 'predefined') { textSpan.textContent = `${item.title} [${item.module}]`; const outputPreview = String(item.output).split('\n').slice(0, 4).join('\n') + (String(item.output).split('\n').length > 4 ? '...' : ''); tooltipSpan.textContent = `Description: ${item.title}\n---\nExample Output:\n${outputPreview}`; } else { textSpan.textContent = `${commandKey} (Custom)`; tooltipSpan.textContent = `Custom Command:\n${commandKey}`; }
+                textSpan.appendChild(tooltipSpan); div.appendChild(textSpan);
+                const favButton = document.createElement('button'); favButton.type = "button"; favButton.innerHTML = `<span class="emoji-icon">${isFavorite ? '⭐' : '☆'}</span>`; favButton.className = `favorite-toggle ml-auto focus:outline-none flex-shrink-0 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600`; favButton.dataset.commandKey = commandKey; favButton.setAttribute('aria-label', isFavorite ? 'Remove from favorites' : 'Add to favorites'); favButton.addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(commandKey, favButton); }); div.appendChild(favButton);
+                div.addEventListener('click', (e) => { if (!e.target.closest('.favorite-toggle')) { if (inputField) { inputField.value = commandKey; inputField.focus(); } } }); fragment.appendChild(div);
+            });
+            commandListDiv.appendChild(fragment);
+        }
+
+        // --- Favorites System ---
+        function toggleFavorite(commandKey, buttonElement) { /* ... Same as before, includes logging comments ... */ if (!commandKey) return; const lowerCommandKey = commandKey.toLowerCase(); const index = favorites.indexOf(lowerCommandKey); let isNowFavorite = false; if (index > -1) { favorites.splice(index, 1); isNowFavorite = false; } else { favorites.push(lowerCommandKey); isNowFavorite = true; } if (buttonElement) { buttonElement.innerHTML = `<span class="emoji-icon">${isNowFavorite ? '⭐' : '☆'}</span>`; buttonElement.setAttribute('aria-label', isNowFavorite ? 'Remove from favorites' : 'Add to favorites'); } saveSettings(); if (moduleFilter && moduleFilter.value === 'favorites') { populateCommandList(); } }
+        function addCustomFavorite() { /* ... Same as before, includes logging comments ... */ if (!inputField) return; const commandToAdd = inputField.value.trim(); if (!commandToAdd) { appendToOutput(`\n<span class="ps-error">Error: Cannot add an empty command to favorites.</span>`); return; } const lowerCommandToAdd = commandToAdd.toLowerCase(); if (!favorites.includes(lowerCommandToAdd)) { favorites.push(lowerCommandToAdd); saveSettings(); if (moduleFilter && (moduleFilter.value === 'favorites' || moduleFilter.value === 'all')) { populateCommandList(); } appendToOutput(`\n<span class="ps-comment"># Added "${escapeHtml(commandToAdd)}" to favorites.</span>`); if (autoClearInput) inputField.value = ''; } else { appendToOutput(`\n<span class="ps-comment"># Command "${escapeHtml(commandToAdd)}" is already in favorites.</span>`); } }
+
+        // --- Command Execution ---
+        function executeCommand() { /* ... Same as before ... */ if (!inputField || !outputDiv) return; const command = inputField.value.trim(); const commandLower = command.toLowerCase(); appendToOutput(`\n<span class="ps-prompt">PS C:\&gt;</span> ${escapeHtml(command)}`); if (commandLower === 'clear-host' || commandLower === 'cls') { clearOutput(); if (autoClearInput) inputField.value = ''; return; } if (!command) return; const example = (commandExamples || {})[commandLower]; const isSyntaxHighlightEnabled = enableSyntaxHighlight; if (example) { const outputText = isSyntaxHighlightEnabled ? syntaxHighlightOutput(example.output) : escapeHtml(example.output); appendToOutput(outputText); } else if (favorites.includes(commandLower)) { appendToOutput(`<span class="ps-comment"># Simulating execution of custom favorite command... (No output defined)</span>`); } else { appendToOutput(`<span class="ps-error">Error: The term '${escapeHtml(command)}' is not recognized...</span>`); } if (autoClearInput) { inputField.value = ''; } }
+
+        // --- Regenerate Command ---
+        function regenerateCommand() { /* ... Same as before ... */ if (!inputField) return; const currentCommand = inputField.value.trim().toLowerCase(); if (!currentCommand) { appendToOutput(`\n<span class="ps-error">Error: Input field is empty. Cannot regenerate.</span>`); return; } const example = (commandExamples || {})[currentCommand]; if (example && example.module) { const currentModule = example.module; const commandsInModule = Object.keys(commandExamples || {}).filter(key => commandExamples[key]?.module === currentModule && key !== currentCommand); if (commandsInModule.length > 0) { const randomIndex = Math.floor(Math.random() * commandsInModule.length); const newCommand = commandsInModule[randomIndex]; inputField.value = newCommand; appendToOutput(`\n<span class="ps-comment"># Regenerated command from module '${currentModule}'.</span>`); } else { appendToOutput(`\n<span class="ps-comment"># No other commands found in the '${currentModule}' module.</span>`); } } else { appendToOutput(`\n<span class="ps-error">Error: Command '${escapeHtml(inputField.value)}' not found in examples.</span>`); } }
+
+        // --- Output Handling ---
+        function appendToOutput(htmlContent) { /* ... Same as before ... */ if (!outputDiv) return; const isInitial = outputDiv.innerHTML.trim() === initialOutputContent.trim(); if (!isInitial && !htmlContent.startsWith('\n')) { outputDiv.innerHTML += '\n'; } outputDiv.innerHTML += htmlContent; outputDiv.scrollTop = outputDiv.scrollHeight; }
+        function clearOutput() { /* ... Same as before ... */ if (outputDiv) outputDiv.innerHTML = initialOutputContent; }
+        function escapeHtml(unsafe) { /* ... Same as before ... */ if (typeof unsafe !== 'string') return ''; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+        // --- Basic Syntax Highlighting ---
+        function syntaxHighlightOutput(text) { /* ... Same as before ... */ if (typeof text !== 'string') return ''; const lines = escapeHtml(text).split('\n'); const highlightedLines = lines.map(line => { line = line.replace(/(#.*)/, '<span class="ps-comment">$1</span>'); line = line.replace(/^([A-Z][a-z]+-[A-Z][a-zA-Z0-9]+)/, '<span class="ps-cmdlet">$1</span>'); line = line.replace(/ (-[A-Z][a-zA-Z0-9]+)/g, ' <span class="ps-parameter">$1</span>'); line = line.replace(/("[^"]*?")/g, '<span class="ps-string">$1</span>'); line = line.replace(/('[^']*?')/g, '<span class="ps-string">$1</span>'); line = line.replace(/(\$[a-zA-Z_][a-zA-Z0-9_]+)/g, '<span class="ps-variable">$1</span>'); if (line.match(/error|failed|exception|not recognized|invalid/i)) { if (!line.startsWith('<span class="ps-error">')) { line = `<span class="ps-error">${line}</span>`; } } return line; }); return highlightedLines.join('\n'); }
+
+        // --- Data Import/Export ---
+        function displayJsonForCopy(data, outputTextareaElement, displayAreaElement) { /* ... Same as before ... */ if (!outputTextareaElement || !displayAreaElement) { console.error("Export textarea or display area element not found."); alert("Error: Could not find the text area to display the export data."); return; } try { if (data === undefined || data === null) { throw new Error("Data is null or undefined."); } const jsonStr = JSON.stringify(data, null, 2); outputTextareaElement.value = jsonStr; displayAreaElement.classList.remove('hidden'); outputTextareaElement.focus(); outputTextareaElement.select(); alert("Data ready for copying in the text area."); } catch (error) { console.error("Error preparing data for copying:", error); alert(`Error preparing data for copying: ${error.message}`); outputTextareaElement.value = `Error: ${error.message}`; displayAreaElement.classList.remove('hidden'); } }
+        function handleImportFile(fileInputElement, processDataCallback) { /* ... Same as before ... */ if (!fileInputElement || !fileInputElement.files || fileInputElement.files.length === 0) { return; } const file = fileInputElement.files[0]; const reader = new FileReader(); reader.onload = (e) => { try { const importedData = JSON.parse(e.target.result); processDataCallback(importedData); } catch (error) { console.error("Import failed - JSON parsing error:", error); alert(`Import failed: Could not parse JSON file.\nError: ${error.message}`); } finally { fileInputElement.value = ''; } }; reader.onerror = (e) => { console.error("Error reading file:", e); alert('Error reading the selected file.'); fileInputElement.value = ''; }; reader.readAsText(file); }
+
+        // --- Changelog Population ---
+        function populateChangelog() { /* ... Same as before ... */ if (!changelogContentArea) return; changelogContentArea.innerHTML = ` <div class="prose prose-sm dark:prose-invert max-w-none"> <h3>[v1.6] (External JSON Fetch)</h3><ul><li><span class="changelog-tag tag-feature">Feature</span> Modified app to load command data from external \`commands.json\` using \`fetch\`. Requires hosting on a web server.</li><li><span class="changelog-tag tag-fix">Fix</span> Added fallback to default embedded commands if fetch fails.</li><li><span class="changelog-tag tag-fix">Fix</span> Updated Reset function to restore default embedded commands.</li><li><span class="changelog-tag tag-ui">UI</span> Added loading message while fetching commands.</li></ul> <h3>[v1.5] (Environment Workarounds)</h3> <ul> <li><span class="changelog-tag tag-fix">Fix</span> Replaced non-rendering icons with Emojis.</li> <li><span class="changelog-tag tag-fix">Fix</span> Changed Export to display JSON in textarea.</li> <li><span class="changelog-tag tag-fix">Fix</span> Integrated Changelog into Settings modal.</li> <li><span class="changelog-tag tag-feature">Feature</span> Restored settings functionality.</li> <li><span class="changelog-tag tag-fix">Fix</span> Added robust error handling for initialization.</li> </ul> </div> `; }
+
+        // --- Event Listeners Setup ---
+        function attachEventListeners() { /* ... Same as before ... */
+            // console.log("DEBUG: Attaching event listeners...");
+            if (settingsButton) settingsButton.addEventListener('click', openSettingsModal); else console.error("DEBUG: Settings button not found.");
+            if (showLogButton) showLogButton.addEventListener('click', openSettingsModal); else console.error("DEBUG: Show Log button not found.");
+            if (closeSettingsButton) closeSettingsButton.addEventListener('click', closeSettingsModal); else console.error("DEBUG: Close Settings button not found.");
+            if (settingsModal) settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); }); else console.error("DEBUG: Settings modal not found.");
+            if (themeToggleButton) themeToggleButton.addEventListener('click', handleThemeToggle); else console.error("DEBUG: Theme toggle button not found.");
+            if (fontFamilySelect) fontFamilySelect.addEventListener('change', (e) => { currentFontFamily = e.target.value; applyFontFamily(); saveSettings(); });
+            if (fontSizeSelect) fontSizeSelect.addEventListener('change', (e) => { currentFontSize = e.target.value; applyFontSize(); saveSettings(); });
+            if (fontWeightSelect) fontWeightSelect.addEventListener('change', (e) => { currentFontWeight = e.target.value; applyFontWeight(); saveSettings(); });
+            if (autoClearInputCheck) autoClearInputCheck.addEventListener('change', (e) => { autoClearInput = e.target.checked; saveSettings(); });
+            if (showTooltipsCheck) showTooltipsCheck.addEventListener('change', (e) => { showTooltips = e.target.checked; applyTooltipPreference(); saveSettings(); });
+            if (enableSyntaxHighlightCheck) enableSyntaxHighlightCheck.addEventListener('change', (e) => { enableSyntaxHighlight = e.target.checked; applySyntaxHighlightPreference(); saveSettings(); });
+            if (showExportFavoritesButton) { showExportFavoritesButton.addEventListener('click', () => { if (exportCommandsArea) exportCommandsArea.classList.add('hidden'); displayJsonForCopy(favorites, favoritesJsonOutput, exportFavoritesArea); }); } else { console.error("DEBUG: Show Export Favorites button not found."); }
+            if (showExportCommandsButton) { showExportCommandsButton.addEventListener('click', () => { if (exportFavoritesArea) exportFavoritesArea.classList.add('hidden'); displayJsonForCopy(commandExamples, commandsJsonOutput, exportCommandsArea); }); } else { console.error("DEBUG: Show Export Commands button not found."); }
+            if (importFavoritesButton && importFavoritesFile) importFavoritesButton.addEventListener('click', () => importFavoritesFile.click()); else console.error("DEBUG: Import Favorites button or file input not found.");
+            if (importCommandsButton && importCommandsFile) importCommandsButton.addEventListener('click', () => importCommandsFile.click()); else console.error("DEBUG: Import Commands button or file input not found.");
+            if (importFavoritesFile) importFavoritesFile.addEventListener('change', () => { handleImportFile(importFavoritesFile, (importedData) => { if (Array.isArray(importedData) && importedData.every(item => typeof item === 'string')) { if (confirm(`Import ${importedData.length} favorites? This will replace your current favorites.`)) { favorites = importedData.map(fav => fav.toLowerCase()); saveSettings(); populateCommandList(); alert('Favorites imported successfully!'); closeSettingsModal(); } } else { alert('Import failed: File does not contain a valid array of strings.'); } }); });
+            if (importCommandsFile) importCommandsFile.addEventListener('change', () => { handleImportFile(importCommandsFile, (importedData) => { if (typeof importedData === 'object' && importedData !== null && !Array.isArray(importedData)) { const firstKey = Object.keys(importedData)[0]; const looksValid = !firstKey || (importedData[firstKey] && importedData[firstKey].module && importedData[firstKey].title && typeof importedData[firstKey].output === 'string'); if (looksValid) { if (confirm(`Import ${Object.keys(importedData).length} commands? This will REPLACE the current command set for this session.`)) { commandExamples = importedData; populateModuleFilter(); populateCommandList(); alert('Commands imported successfully for this session!'); closeSettingsModal(); } } else { alert('Import failed: JSON data does not seem to contain valid command objects.'); } } else { alert('Import failed: File does not contain a valid JSON object.'); } }); });
+            if (resetSettingsButton) resetSettingsButton.addEventListener('click', resetAllSettings); else console.error("DEBUG: Reset Settings button not found.");
+            if (runButton) runButton.addEventListener('click', executeCommand); else console.error("DEBUG: Run button not found.");
+            if (clearButton) clearButton.addEventListener('click', clearOutput); else console.error("DEBUG: Clear button not found.");
+            if (addFavoriteButton) addFavoriteButton.addEventListener('click', addCustomFavorite); else console.error("DEBUG: Add Favorite button not found.");
+            if (regenerateButton) regenerateButton.addEventListener('click', regenerateCommand); else console.error("DEBUG: Regenerate button not found.");
+            if (inputField) inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') executeCommand(); }); else console.error("DEBUG: Input field not found.");
+            if (moduleFilter) moduleFilter.addEventListener('change', populateCommandList); else console.error("DEBUG: Module filter not found.");
+            // console.log("DEBUG: All Event listeners attached.");
+        }
+
+    </script>
+
+</body>
+
+</html>

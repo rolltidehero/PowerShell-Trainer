@@ -1,0 +1,157 @@
+{
+  "get-mpcomputerstatus": {
+    "module": "Defender",
+    "title": "Check Defender Status",
+    "output": "AntivirusEnabled                 : True\nAntispywareEnabled               : True\nBehaviorMonitorEnabled           : True\nIoavProtectionEnabled            : True\nNISEnabled                       : True\nOnAccessProtectionEnabled        : True\nRealTimeProtectionEnabled        : True\nComputerState                    : 0\nLastFullScanTime                 : 2025-03-15T08:00:00.000Z\nLastQuickScanTime                : 2025-04-04T10:30:00.000Z"
+  },
+  "start-mpscan -scantype quickscan": {
+    "module": "Defender",
+    "title": "Quick Scan",
+    "output": "Scan starting...\nScan finished.\nNo threats found."
+  },
+  "start-mpscan -scantype fullscan": {
+    "module": "Defender",
+    "title": "Full Scan",
+    "output": "Scan starting (this might take a while)...\nScan finished.\nNo threats found."
+  },
+  "update-mpsignature": {
+    "module": "Defender",
+    "title": "Update Signatures",
+    "output": "Signature update started...\nSignature update finished.\nCurrent Version: 1.415.120.0"
+  },
+  "get-mpthreatdetection": {
+    "module": "Defender",
+    "title": "Get Threat Detections",
+    "output": "InitialDetectionTime    Action          ProcessName   ThreatName\n--------------------    ------          -----------   ----------\n2025-03-20T14:05:10Z    Quarantined     svchost.exe   Trojan:Win32/Wacatac.B!ml\n2025-04-01T09:15:30Z    Removed         chrome.exe    PUA:Win32/InstallCore"
+  },
+  "get-mppreference": {
+    "module": "Defender",
+    "title": "Get Defender Preferences",
+    "output": "ExclusionPath                      : {C:\\Temp\\Dev, C:\\Projects}\nExclusionExtension                 : {.tmp, .log}\nRealTimeScanDirection              : Both\nScanScheduleDay                    : Everyday\nScanScheduleTime                   : 02:00:00"
+  },
+  "add-mppreference -exclusionpath \"c:\\development\"": {
+    "module": "Defender",
+    "title": "Add Exclusion Path",
+    "output": "Preference updated."
+  },
+  "get-mpthreat -threatid 2147890123": {
+    "module": "Defender",
+    "title": "Get Specific Threat",
+    "output": "ThreatID          : 2147890123\nThreatName        : Trojan:Win32/Emotet.SB\nSeverityID        : 5 (Severe)\nResources         : {file:_C:\\Users\\Admin\\Downloads\\invoice.docm}"
+  },
+  "get-windowsimage -online -loglevel warnings": {
+    "module": "Dism",
+    "title": "Get Online Image Info",
+    "output": "Image Version: 10.0.19045.2728\nArchitecture : amd64\nService Pack : 0\nImage Index : 1"
+  },
+  "get-windowsfeature -online -featurename \"NetFx3\"": {
+    "module": "Dism",
+    "title": "Check .NET 3.5 Feature",
+    "output": "FeatureName      : NetFx3\nDisplayName      : .NET Framework 3.5 (includes .NET 2.0 and 3.0)\nState            : Disabled"
+  },
+  "enable-windowsoptionalfeature -online -featurename \"Microsoft-Windows-Subsystem-Linux\" -norestart": {
+    "module": "Dism",
+    "title": "Enable WSL (No Restart)",
+    "output": "Path          : \nOnline        : True\nRestartNeeded : False"
+  },
+  "dism /online /cleanup-image /scanhealth": {
+    "module": "Dism",
+    "title": "Scan Component Store Health",
+    "output": "Deployment Image Servicing and Management tool\nVersion: 10.0.19041.844\n\nImage Version: 10.0.19045.2728\n\n[==========================100.0%==========================]\nNo component store corruption detected.\nThe operation completed successfully."
+  },
+  "dism /online /cleanup-image /restorehealth": {
+    "module": "Dism",
+    "title": "Restore Component Store Health",
+    "output": "Deployment Image Servicing and Management tool\nVersion: 10.0.19041.844\n\nImage Version: 10.0.19045.2728\n\n[==========================100.0%==========================]\nThe restore operation completed successfully.\nThe operation completed successfully."
+  },
+  "resolve-dnsname -name www.google.com": {
+    "module": "DnsClient",
+    "title": "Resolve DNS Name",
+    "output": "Name                           Type   TTL   Section    NameHost\n----                           ----   ---   -------    --------\nwww.google.com                 A      299   Answer     142.250.191.196"
+  },
+  "clear-dnsclientcache": {
+    "module": "DnsClient",
+    "title": "Clear DNS Cache",
+    "output": "DNS cache cleared successfully."
+  },
+  "get-dnsclientserveraddress -interfacealias \"Ethernet\"": {
+    "module": "DnsClient",
+    "title": "Get DNS Servers (Ethernet)",
+    "output": "InterfaceAlias               Interface Address ServerAddresses\n                                Index     Family\n--------------               --------- ------- --------------- \nEthernet                            12 IPv4    {192.168.1.1, 8.8.8.8}\nEthernet                            12 IPv6    {fe80::1%12}"
+  },
+  "get-date": {
+    "module": "Utility",
+    "title": "Get Current Date/Time",
+    "output": "Friday, April 4, 2025 11:50:00 PM"
+  },
+  "get-process | sort-object cpu -descending | select-object -first 5": {
+    "module": "Utility",
+    "title": "Top 5 Processes by CPU",
+    "output": "Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName\n-------  ------    -----      -----     ------     --  -- -----------\n   1500      80   250120     310500   1,234.56   4567   1 HighCpuApp\n    800      45    95100     150200     876.12   1234   1 AnotherApp\n    350      20    50300      80400     450.78   8910   1 System\n    600      35    75800     110900     210.90   5678   0 Idle\n    200      15    30400      50600     150.23   2345   1 Explorer"
+  },
+  "get-service -name \"WinRM\"": {
+    "module": "Utility",
+    "title": "Get WinRM Service Status",
+    "output": "Status   Name               DisplayName\n------   ----               -----------\nRunning  WinRM              Windows Remote Management (WS-Manag..."
+  },
+  "get-content -path \"c:\\windows\\system32\\drivers\\etc\\hosts\"": {
+    "module": "Utility",
+    "title": "View Hosts File",
+    "output": "# Copyright (c) 1993-2009 Microsoft Corp.\n#\n# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.\n#\n# This file contains the mappings of IP addresses to host names. Each\n# entry should be kept on an individual line. The IP address should\n# be placed in the first column followed by the corresponding host name.\n# The IP address and the host name should be separated by at least one\n# space.\n#\n# Additionally, comments (such as these) may be inserted on individual\n# lines or following the machine name denoted by a '#' symbol.\n#\n# For example:\n#\n#      102.54.94.97     rhino.acme.com          # source server\n#       38.25.63.10     x.acme.com              # x client host\n\n# localhost name resolution is handled within DNS itself.\n#       127.0.0.1       localhost\n#       ::1             localhost"
+  },
+  "test-connection -computername 8.8.8.8 -count 2": {
+    "module": "Utility",
+    "title": "Ping Google DNS",
+    "output": "Source        Destination     IPV4Address      IPV6Address                              Bytes    Time(ms)\n------        -----------     -----------      -----------                              -----    -------\nMyPC          8.8.8.8         8.8.8.8                                                   32       15\nMyPC          8.8.8.8         8.8.8.8                                                   32       14"
+  },
+  "get-help get-process -examples": {
+    "module": "Utility",
+    "title": "Get Help Examples",
+    "output": "NAME\n    Get-Process\n\nSYNOPSIS\n    Gets the processes that are running on the local computer or a remote computer.\n\n    -------------------------- EXAMPLE 1 --------------------------\n\n    PS C:\\> Get-Process\n\n    Description\n    -----------    This command gets a list of all active processes running on the local computer.\n\n    -------------------------- EXAMPLE 2 --------------------------\n\n    PS C:\\> Get-Process winword, explorer | Format-List *\n\n    Description\n    -----------    This command gets all available data about the Winword and Explorer processes on the computer."
+  },
+  "clear-host": {
+    "module": "Utility",
+    "title": "Clear Console Screen",
+    "output": ""
+  },
+  "cls": {
+    "module": "Utility",
+    "title": "Clear Console Screen (Alias)",
+    "output": ""
+  },
+  "find-psresource -name \"Az.Accounts\"": {
+    "module": "PSResourceGet",
+    "title": "Find Az.Accounts Module",
+    "output": "Name         Version Prerelease Repository Description\n----         ------- ---------- ---------- -----------\nAz.Accounts  2.12.3             PSGallery  Microsoft Azure Accounts Module..."
+  },
+  "install-psresource -name \"Pester\" -scope currentuser": {
+    "module": "PSResourceGet",
+    "title": "Install Pester (CurrentUser)",
+    "output": "Installing Pester v5.5.0 from PSGallery.\nInstallation complete."
+  },
+  "get-installedpsresource": {
+    "module": "PSResourceGet",
+    "title": "List Installed Modules",
+    "output": "Name          Version Prerelease Repository Path\n----          ------- ---------- ---------- ----\nAz.Accounts   2.12.3             PSGallery  C:\\Users\\...\\Modules\\Az.Accounts\\2.12.3\nPester        5.5.0              PSGallery  C:\\Users\\...\\Modules\\Pester\\5.5.0\nPSReadline    2.3.4              PSGallery  C:\\Program Files\\WindowsPowerShell\\Modules\\PSReadline\\2.3.4"
+  },
+  "update-psresource -name \"Pester\"": {
+    "module": "PSResourceGet",
+    "title": "Update Pester Module",
+    "output": "Checking for updates to Pester...\nNo updates found for Pester."
+  },
+  "get-mmaagent": {
+    "module": "MMAgent",
+    "title": "Get MMAgent Status",
+    "output": "WorkspaceID          : abcdef12-3456-7890-abcd-ef1234567890\nWorkspaceKeyConfigured : True\nHeartbeatMinutes     : 5\nAgentVersion         : 10.20.18066.0"
+  },
+  "$workspaceId = \"your-workspace-id\"; $workspaceKey = \"your-workspace-key\"; add-mmaagentworkspace -workspaceid $workspaceId -workspacekey $workspaceKey": {
+    "module": "MMAgent",
+    "title": "Add MMAgent Workspace",
+    "output": "Workspace added successfully. Agent restart might be required."
+  },
+  "remove-mmaagentworkspace -workspaceid \"abcdef12-...\"": {
+    "module": "MMAgent",
+    "title": "Remove MMAgent Workspace",
+    "output": "Workspace removed successfully."
+  }
+}
